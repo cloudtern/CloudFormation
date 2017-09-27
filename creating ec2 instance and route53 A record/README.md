@@ -1,0 +1,1 @@
+Cloudformation script for creating a EC2 instance and creating a A record in private hosted zone.

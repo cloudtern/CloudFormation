@@ -1,0 +1,67 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters":{
+		"VpcId":{
+			"Description":"Choose the VPC ID",
+			"Type":"AWS::EC2::VPC::Id"
+		},
+		"KeyName":{
+			"Description":"Name of an existing EC2 KeyPair to enable SSH access to the ec2 instance",
+			"Type":"AWS::EC2::KeyPair::KeyName",
+			"ConstraintDescription":"must be the name of an existing EC2 KeyPair."
+		},
+
+		"Subnet":{
+			"Description":"Choose the subnet you want to launch the instance",
+			"Type":"AWS::EC2::Subnet::Id"
+		},
+		"HostedZone":{
+			"Description":"Choose the route53 hosted zone",
+			"Type":"AWS::Route53::HostedZone::Id"
+		}
+		
+	},
+	"Resources" : {
+		"Ec2Instance": { 
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+				"KeyName" : { "Ref" : "KeyName" },
+				"InstanceType":"t2.micro",
+                "ImageId":"ami-a4c7edb2",
+				"BlockDeviceMappings":[
+					{
+						"DeviceName":"/dev/xvda",
+						"Ebs":{ "VolumeSize" : "20" }
+					}
+					
+				],
+				"SubnetId":{"Ref":"Subnet"}
+					
+            }
+        },
+	
+		"Ec2InstanceDns":{
+			"Type":"AWS::Route53::RecordSet",
+			"Properties":{
+				"HostedZoneId":{ "Ref" : "HostedZone"},
+				""
+				"Name":"<<put your name here>>",
+				"TTL":"900",
+				"Type" : "A",
+				"ResourceRecords":[
+					{"Fn::GetAtt":["Ec2Instance","PrivateIp"]}
+				]
+			}
+		}
+	},
+	"Outputs":{
+		"InstanceIP":{
+			"Description":"Instance private IPv4",
+			"Value":{"fn::GetAtt":["Ec2Instance","PrivateIp"]}
+		},
+		"DnsName":{
+			"Description":"DNS name of the instance",
+			"Value":{"Ref":"Ec2InstanceDns"}
+		}
+	}
+}
