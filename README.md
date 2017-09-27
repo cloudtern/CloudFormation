@@ -1,2 +1,2 @@
 # CloudFormation
-Sample CloudFormation Scripts
+AWS CloudFormation Scripts 
